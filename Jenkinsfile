@@ -9,20 +9,20 @@ pipeline {
         }
         stage('Build and Test'){
             steps{
-                sh 'docker build . -t yogendrakokamkar/todonode:latest'
+                sh 'sudo docker build . -t yogendrakokamkar/todonode:latest'
             }
         }
         stage('Push'){
             steps{
                 withCredentials([usernamePassword(credentialsId: 'Docker', passwordVariable: 'DockerPassword', usernameVariable: 'DockerUser')]) {
-        	     sh "docker login -u ${env.DockerUser} -p ${env.DockerPassword}"
-                 sh 'docker push yogendrakokamkar/todonode:latest'
+        	     sh "sudo docker login -u ${env.DockerUser} -p ${env.DockerPassword}"
+                 sh 'sudo docker push yogendrakokamkar/todonode:latest'
                 }
             }
         }
         stage('Deploy'){
             steps{
-                sh "docker-compose down && docker-compose up -d"
+                sh "sudo docker-compose down && docker-compose up -d"
             }
         }
     }

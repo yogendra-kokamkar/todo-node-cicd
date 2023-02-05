@@ -23,7 +23,7 @@ pipeline {
         stage('Deploy'){
             steps{
                 sh "sudo docker-compose down"
-                sh "sudo docker-compose up -d --force-recreate --no-deps -=build web"
+                sh "sudo docker-compose up -d --force-recreate --no-deps --build web"
             }
         }
     }

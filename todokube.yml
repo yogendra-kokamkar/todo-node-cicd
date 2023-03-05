@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todonodekube
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: todonodekube-app
+      version: blue
+  template:
+    metadata:
+      name: todonodekube-pod
+      labels:
+        app: todonodekube-app
+        version: blue
+    spec:
+      containers:
+      - name: todonodekube-container
+        image: yogendrakokamkar/todonodekube:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: todonodekube-svc
+  labels:
+    app: todonodekube-app
+spec:
+  selector:
+    app: todonodekube-app
+    version: blue
+  type: NodePort
+  ports:
+  - nodePort: 31113
+    port: 80
+    targetPort: 80

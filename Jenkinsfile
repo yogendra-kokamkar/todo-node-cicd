@@ -33,7 +33,7 @@ pipeline {
     stage('Deploy App') {
       steps {
         script {
-          kubernetesDeploy(configs: "todokube.yml", kubeconfigId: "mykubeconfig")
+          kubernetesDeploy(configs: "todokube.yml", kubeconfigId: "kubernetes")
         }
       }
     }

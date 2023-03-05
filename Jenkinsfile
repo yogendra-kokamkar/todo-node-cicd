@@ -1,30 +1,43 @@
 pipeline {
-    agent {label 'node-agent'}
+
+  agent any
+
+  stages {
+
+    stage('Checkout Source') {
+      steps {
+        git url:'https://github.com/yogendra-kokamkar/todo-node-cicd.git', branch:'K8s-CICD'
+      }
+    }
     
-    stages{
-        stage('Code'){
-            steps{
-                git url: 'https://github.com/yogendra-kokamkar/todo-node-cicd.git', branch: 'main' 
-            }
-        }
-        stage('Build and Test'){
-            steps{
-                sh 'sudo docker build . -t yogendrakokamkar/todonode:v2'
-            }
-        }
-        stage('Push'){
-            steps{
-                withCredentials([usernamePassword(credentialsId: 'Docker', passwordVariable: 'DockerPassword', usernameVariable: 'DockerUser')]) {
-        	     sh "sudo docker login -u ${env.DockerUser} -p ${env.DockerPassword}"
-                 sh 'sudo docker push yogendrakokamkar/todonode:v2'
+      stage("Build image") {
+            steps {
+                script {
+                    myapp = docker.build("yogendrakokamkar/todonodeKube:${env.BUILD_ID}")
                 }
             }
         }
-        stage('Deploy'){
-            steps{
-                sh "sudo docker-compose down"
-                sh "sudo docker-compose up -d --force-recreate --no-deps --build web"
+    
+      stage("Push image") {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                            myapp.push("latest")
+                            myapp.push("${env.BUILD_ID}")
+                    }
+                }
             }
         }
+
+    
+    stage('Deploy App') {
+      steps {
+        script {
+          kubernetesDeploy(configs: "todokube.yml", kubeconfigId: "mykubeconfig")
+        }
+      }
     }
+
+  }
+
 }
